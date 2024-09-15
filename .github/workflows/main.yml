@@ -24,8 +24,8 @@ jobs:
         port: 22
         script: |
             cd /var/www/tp1ver2.yermakov.fr/
-            wp --allow-root db import /var/www/tp1ver2.sql && wp --allow-root search-replace 'http://tp1ver2.yermakov.fr' 'http://tp1ver2.yermakov.fr'
+            wp --allow-root db import /var/www/tp1ver2.sql && wp --allow-root search-replace 'http://localhost/tp1ver2.yermakov.fr' 'http://tp1ver2.yermakov.fr' --skip-columns=guid
             mysql -u tp1ver2 -p${{ secrets.DB_PASSWD }} tp1ver2 < /var/www/tp1ver2.sql
-            wp --allow-root search-replace 'http://localhost/tp1ver2.yermakov.fr' 'http://tp1ver2.yermakov.fr' --skip-columns=guid
+            
             git config --global --add safe.directory /var/www/tp1ver2.yermakov.fr
             git pull 
