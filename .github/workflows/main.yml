@@ -1,0 +1,26 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:       
+    - name: Deploy using ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+            cd /var/www/tp1ver2.yermakov.fr/
+            wp --allow-root db import /var/www/tp1ver2.sql && wp --allow-root search-replace 'http://localhost/tp1ver2.yermakov.fr' 'http://tp1ver2.yermakov.fr' --skip-columns=guid
+            mysql -u tp1ver2 -p${{ secrets.DB_PASSWD }} tp1ver2 < /var/www/tp1ver2.sql
+            wp --allow-root search-replace 'http://localhost/wordpress1tp.yermakov.fr' 'http://wordpress1tp.yermakov.fr' --skip-columns=guid
+            mysql -u tp1ver2 -p${{ secrets.DB_PASSWD }} -e "UPDATE wp_options SET option_value = REPLACE(option_value, 'http://localhost/tp1ver2.yermakov.fr', 'http://tp1ver2.yermakov.fr') WHERE option_name IN ('siteurl', 'home')" tp1ver2
+            git config --global --add safe.directory /var/www/tp1ver2.yermakov.fr
+            git pull 
